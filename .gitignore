@@ -1,0 +1,24 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Java / build výstupy
+*.class
+build/
+target/
+.gradle/
+
+# macOS
+.DS_Store
+
+# lokální konfigurace a tajemství (nikdy necommitovat)
+.env
+.env.local
+*.keystore
+*.jks
+local.properties
+secrets.properties
+
+# interní dokumentace – zůstává pouze lokálně, necommitovat
+info/
