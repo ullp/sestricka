@@ -1,6 +1,6 @@
 # Sestřička
 
-Mobilní aplikace pro pacienty a lékaře, která pomocí umělé inteligence zjednodušuje administrativu a komunikaci s ordinací.
+Webová aplikace pro pacienty a lékaře, která pomocí umělé inteligence zjednodušuje administrativu a komunikaci s ordinací.
 
 > Projekt je ve fázi přípravy. Zdrojový kód aplikace zatím v tomto repozitáři není.
 
@@ -18,7 +18,7 @@ O léčbě vždy rozhoduje lékař. Výstupy umělé inteligence slouží pouze 
 
 | Vrstva | Technologie |
 | --- | --- |
-| Mobilní aplikace | Android (Kotlin), později iOS |
+| Webová aplikace | TypeScript + React (responzivní SPA, instalovatelná jako PWA) |
 | Backend | Java, Spring Boot |
 | Databáze | PostgreSQL |
 | AI a telefonie | poskytovatelé s datovým centrem v EU |
@@ -26,7 +26,7 @@ O léčbě vždy rozhoduje lékař. Výstupy umělé inteligence slouží pouze 
 ## Stav projektu
 
 - [ ] Návrh produktu a funkčních požadavků
-- [ ] Kostra mobilní aplikace
+- [ ] Kostra webové aplikace (frontend + backend)
 - [ ] Backend a datový model
 - [ ] Pilotní provoz v ordinacích
 
