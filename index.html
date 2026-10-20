@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sestřička – méně administrativy, více času na pacienta</title>
+<meta name="description" content="Sestřička je webová aplikace pro ordinace: AI shrne lékařské dokumenty, zapíše diktát do dokumentace, odbaví telefonáty a upozorní na zhoršující se stav chronických pacientů. Data v EU, o léčbě vždy rozhoduje lékař.">
+<link rel="canonical" href="https://sestricka.online/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="cs_CZ">
+<meta property="og:url" content="https://sestricka.online/">
+<meta property="og:title" content="Sestřička – méně administrativy, více času na pacienta">
+<meta property="og:description" content="Webová aplikace pro ordinace, která pomocí AI šetří čas lékařům i sestrám. O léčbě vždy rozhoduje lékař.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230e5a8a'/><path d='M16 8v16M8 16h16' stroke='white' stroke-width='3.5' stroke-linecap='round'/></svg>">
+<style>
+:root{
+  --blue-900:#082f4d;
+  --blue-800:#0a3d62;
+  --blue-700:#0e5a8a;
+  --blue-600:#1478ae;
+  --blue-100:#e8f3fa;
+  --teal:#0f9b8e;
+  --teal-100:#e4f6f4;
+  --ink:#122b3c;
+  --muted:#5a7285;
+  --line:#dce8f0;
+  --bg:#f7fbfd;
+  --white:#ffffff;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 12px 32px rgba(10,61,98,.08);
+  --shadow-lg:0 20px 50px rgba(10,61,98,.12);
+  --wrap:1120px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--ink);
+  background:var(--white);
+  line-height:1.6;
+  font-size:17px;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:var(--blue-700)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--teal);outline-offset:2px;border-radius:6px}
+h1,h2,h3{line-height:1.2;margin:0 0 .5em;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,4.6vw,3.1rem);font-weight:700}
+h2{font-size:clamp(1.5rem,2.6vw,2.1rem);font-weight:700}
+h3{font-size:1.12rem;font-weight:650}
+p{margin:0 0 1em}
+.wrap{width:100%;max-width:var(--wrap);margin:0 auto;padding:0 20px}
+.lead{font-size:clamp(1.02rem,1.5vw,1.2rem);color:var(--muted)}
+.eyebrow{
+  display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--teal);background:var(--teal-100);border-radius:999px;padding:.35em .9em;margin-bottom:1em;
+}
+section{padding:clamp(48px,7vw,88px) 0}
+.section-alt{background:var(--bg);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.section-head{max-width:720px;margin-bottom:2.2em}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5em;
+  font-weight:650;font-size:.97rem;text-decoration:none;border-radius:999px;
+  padding:.72em 1.4em;border:1px solid transparent;transition:transform .12s ease,box-shadow .12s ease,background .12s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--blue-700);color:#fff;box-shadow:0 8px 20px rgba(14,90,138,.25)}
+.btn-primary:hover{background:var(--blue-800)}
+.btn-ghost{background:#fff;color:var(--blue-800);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--blue-600)}
+.btn-light{background:#fff;color:var(--blue-800)}
+/* ---------- header ---------- */
+.site-header{
+  position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.site-header .wrap{display:flex;align-items:center;gap:22px;min-height:68px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;font-weight:700;font-size:1.12rem;color:var(--blue-900);text-decoration:none}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(140deg,var(--blue-700),var(--teal));display:grid;place-items:center;flex:0 0 auto}
+.brand-mark svg{width:19px;height:19px}
+.nav{margin-left:auto;display:flex;align-items:center;gap:22px}
+.nav a{color:var(--ink);text-decoration:none;font-size:.95rem;font-weight:500;padding:.3em 0;border-bottom:2px solid transparent}
+.nav a:hover{border-bottom-color:var(--teal)}
+.btn-sm{padding:.55em 1.1em;font-size:.9rem}
+/* ---------- hero ---------- */
+.hero{
+  background:
+    radial-gradient(1100px 420px at 88% -12%,rgba(15,155,142,.14),transparent 60%),
+    radial-gradient(900px 380px at 6% 0%,rgba(20,120,174,.12),transparent 55%),
+    linear-gradient(180deg,#fff,#f4fafd);
+  border-bottom:1px solid var(--line);
+}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,60px);align-items:center}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin:1.4em 0 1.2em}
+.chips{display:flex;gap:10px;flex-wrap:wrap;padding:0;margin:0;list-style:none}
+.chips li{
+  display:flex;align-items:center;gap:.45em;font-size:.85rem;color:var(--blue-800);
+  background:#fff;border:1px solid var(--line);border-radius:999px;padding:.4em .85em;
+}
+.chips svg{width:15px;height:15px;flex:0 0 auto}
+.pilot-note{margin-top:1.6em;font-size:.9rem;color:var(--muted);border-left:3px solid var(--teal);padding:.2em 0 .2em .9em}
+/* ---------- ukázková karta ---------- */
+.mock{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:20px}
+.mock-bar{display:flex;gap:7px;margin-bottom:16px}
+.mock-bar span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.mock-title{display:flex;align-items:center;gap:9px;font-weight:650;font-size:.95rem;color:var(--blue-800);margin-bottom:12px}
+.mock-badge{font-size:.72rem;font-weight:700;letter-spacing:.04em;color:var(--teal);background:var(--teal-100);border-radius:999px;padding:.2em .65em}
+.mock-line{height:9px;border-radius:6px;background:var(--blue-100);margin-bottom:9px}
+.mock-line.w80{width:80%}
+.mock-line.w70{width:70%}
+.mock-line.w60{width:60%}
+.mock-alert{
+  margin-top:14px;border:1px solid #ffd9d0;background:#fff6f3;border-radius:var(--radius-sm);padding:11px 13px;
+  font-size:.87rem;color:#8c3b22;display:flex;gap:9px;align-items:flex-start;
+}
+.mock-alert svg{width:16px;height:16px;flex:0 0 auto;margin-top:2px}
+.mock-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;font-size:.82rem;color:var(--muted)}
+.mock-pill{background:var(--blue-700);color:#fff;border-radius:999px;padding:.32em .8em;font-weight:650;font-size:.78rem}
+/* ---------- mřížka funkcí ---------- */
+.grid{display:grid;gap:22px}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;
+  box-shadow:var(--shadow);transition:transform .14s ease,box-shadow .14s ease;
+}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.card p:last-child{margin-bottom:0}
+.icon{
+  width:46px;height:46px;border-radius:12px;background:var(--blue-100);display:grid;place-items:center;margin-bottom:14px;
+}
+.icon svg{width:24px;height:24px}
+.card-teal .icon{background:var(--teal-100)}
+.tag{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:.4em}
+/* ---------- kroky ---------- */
+.steps{counter-reset:step;display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));padding:0;margin:0;list-style:none}
+.steps li{position:relative;padding:26px 24px 24px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.steps li::before{
+  counter-increment:step;content:counter(step);
+  position:absolute;top:-16px;left:24px;width:34px;height:34px;border-radius:50%;
+  background:var(--blue-700);color:#fff;font-weight:700;display:grid;place-items:center;font-size:.95rem;
+  box-shadow:0 6px 14px rgba(14,90,138,.28);
+}
+.steps li:last-child::before{background:var(--teal)}
+.steps h3{margin-top:.2em}
+/* ---------- seznamy s fajfkou ---------- */
+.checks{list-style:none;padding:0;margin:0}
+.checks li{position:relative;padding-left:30px;margin-bottom:.7em}
+.checks li::before{
+  content:"";position:absolute;left:0;top:.35em;width:18px;height:18px;border-radius:50%;
+  background:var(--teal-100) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f9b8e' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/12px no-repeat;
+}
+/* ---------- CTA pás ---------- */
+.cta-band{
+  background:linear-gradient(135deg,var(--blue-800),var(--blue-600) 55%,var(--teal));
+  color:#fff;border-radius:var(--radius);padding:clamp(30px,5vw,54px);text-align:center;box-shadow:var(--shadow-lg);
+}
+.cta-band h2{color:#fff}
+.cta-band p{color:rgba(255,255,255,.9);max-width:640px;margin-left:auto;margin-right:auto}
+.cta-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:1.4em}
+.cta-band .btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
+.cta-band .btn-ghost:hover{border-color:#fff}
+/* ---------- patička ---------- */
+.site-footer{background:var(--blue-900);color:#c8dce9;padding:44px 0 30px;font-size:.92rem}
+.site-footer a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.35)}
+.site-footer a:hover{border-bottom-color:#fff}
+.footer-grid{display:grid;gap:26px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:26px}
+.site-footer h3{color:#fff;font-size:1rem;margin-bottom:.6em}
+.site-footer ul{list-style:none;padding:0;margin:0}
+.site-footer li{margin-bottom:.45em}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.16);padding-top:18px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:.85rem;color:#9dbbc9}
+/* ---------- responzivita ---------- */
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero{padding-top:34px}
+  .nav{display:none}
+  .site-header .wrap{justify-content:space-between}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  .hero-actions .btn{width:100%}
+  .cta-actions .btn{width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main" style="position:absolute;left:-9999px">Přeskočit na obsah</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </span>
+      Sestřička
+    </a>
+    <nav class="nav" aria-label="Hlavní navigace">
+      <a href="#funkce">Funkce</a>
+      <a href="#jak-to-funguje">Jak to funguje</a>
+      <a href="#bezpecnost">Bezpečnost</a>
+      <a href="#kontakt">Kontakt</a>
+    </nav>
+    <a class="btn btn-primary btn-sm" href="#kontakt">Chci konzultaci</a>
+  </div>
+</header>
+<main id="main">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Pro ordinace a kliniky</span>
+        <h1 id="hero-title">Méně administrativy, více času na pacienta</h1>
+        <p class="lead">Sestřička je webová aplikace, která ordinaci ušetří rutinu: přečte lékařské dokumenty, zapíše diktát do dokumentace, odbaví telefonáty a upozorní na zhoršující se stav chronických pacientů.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#kontakt">Chci nezávaznou konzultaci</a>
+          <a class="btn btn-ghost" href="#funkce">Prohlédnout funkce</a>
+        </div>
+        <ul class="chips">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#0f9b8e" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>Běží v prohlížeči, bez instalace</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#0f9b8e" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>Data zpracováváme v EU</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#0f9b8e" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>O léčbě vždy rozhoduje lékař</li>
+        </ul>
+        <p class="pilot-note">Projekt je ve fázi přípravy. Hledáme pilotní ordinace, se kterými Sestřičku doladíme do praxe.</p>
+      </div>
+      <div class="mock" role="img" aria-label="Ukázka obrazovky lékaře: souhrn dokumentu od pacienta s upozorněním na zvýšenou hodnotu a tlačítkem Schválit">
+        <div class="mock-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="mock-title">Souhrn dokumentu <span class="mock-badge">AI</span></div>
+        <div class="mock-line w80"></div>
+        <div class="mock-line"></div>
+        <div class="mock-line w70"></div>
+        <div class="mock-alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          <span><strong>Zvýšená hodnota:</strong> glykémie 9,8 mmol/l (str. 2) – oproti minulé zprávě nárůst.</span>
+        </div>
+        <div class="mock-foot">
+          <span>Zdroj: propouštěcí zpráva, 6 stran</span>
+          <span class="mock-pill">Schválit</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="funkce" class="section-alt" aria-labelledby="funkce-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Co Sestřička umí</span>
+        <h2 id="funkce-title">Šest funkcí, které ordinaci vrátí hodiny denně</h2>
+        <p class="lead">Nejdřív to, co lékaře zdrží nejvíc: čtení dokumentů a psaní zápisů. Pak telefonáty, chroničtí pacienti a příprava ještě před návštěvou.</p>
+      </div>
+      <div class="grid grid-3">
+        <article class="card">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#0e5a8a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span>
+          <h3>Shrnutí lékařských dokumentů</h3>
+          <p>Pacient nahraje zprávu z nemocnice, výsledky laboratoře nebo snímek. Lékař dostane krátké shrnutí, upozornění na abnormální hodnoty a přehled změn od minulé zprávy – s odkazem na zdroj.</p>
+        </article>
+        <article class="card card-teal">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#0f9b8e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>
+          <h3>Zápis do dokumentace z diktátu</h3>
+          <p>Nadiktujte průběh vyšetření a Sestřička připraví strukturovaný záznam, doporučení a návrh zprávy. Vy jen zkontrolujete a schválíte.</p>
+        </article>
+        <article class="card">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#0e5a8a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h3l2 5-2 1a12 12 0 0 0 6 6l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 4 5a2 2 0 0 1 2-2z"/></svg></span>
+          <h3>Telefonní asistent</h3>
+          <p>Pacient zavolá a řekne, co potřebuje – třeba recept. Požadavek se zaeviduje, přepíše a předá lékaři ke schválení. Ordinace nemusí zvedat telefon.</p>
+        </article>
+        <article class="card card-teal">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#0f9b8e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-5 3 10 2-5h7"/></svg></span>
+          <h3>Monitoring chronických pacientů</h3>
+          <p>Pacient zapisuje tlak, glykémii nebo PEF. Sestřička sleduje trend a lékaře upozorní, když se stav dlouhodobě zhoršuje – ne u jednorázového výkyvu.</p>
+        </article>
+        <article class="card">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#0e5a8a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15V10a6 6 0 1 0-12 0v5l-2 3h16z"/><path d="M10 21h4"/></svg></span>
+          <h3>Připomínky a follow-up</h3>
+          <p>Automatické připomínky léků, odběrů a kontrol. Pacient odpovídá přímo v aplikaci, takže má ordinace přehled o průběhu léčby mezi návštěvami.</p>
+        </article>
+        <article class="card card-teal">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#0f9b8e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6v3H9z"/><path d="M9 6H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2"/><path d="m9 14 2 2 4-4"/></svg></span>
+          <h3>Triáž před návštěvou</h3>
+          <p>Pacient vyplní krátký dotazník ještě před příchodem. Lékař má souhrn obtíží, délku potíží, rizikové faktory a doporučenou prioritu – místo pěti minut zjišťování.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+  <section id="jak-to-funguje" aria-labelledby="jak-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Jak to funguje</span>
+        <h2 id="jak-title">Čtyři kroky od pacienta k hotovému zápisu</h2>
+        <p class="lead">Sestřička neuloží nic bez vědomí lékaře. Každý výstup umělé inteligence projde kontrolou a schválením.</p>
+      </div>
+      <ol class="steps">
+        <li>
+          <h3>Pacient dodá podklady</h3>
+          <p>Nahraje dokument, vyplní dotazník před návštěvou nebo zavolá. Vše zvládne v prohlížeči na počítači i na mobilu.</p>
+        </li>
+        <li>
+          <h3>Sestřička připraví podklad</h3>
+          <p>Přečte dokument, přepíše diktát nebo vyhodnotí zapisované hodnoty a připraví souhrn s upozorněním na důležité hodnoty.</p>
+        </li>
+        <li>
+          <h3>Lékař zkontroluje a schválí</h3>
+          <p>Vidí návrh, zdroj i nejistá místa. Jedním kliknutím upraví, schválí nebo zamítne – nic se neukládá automaticky.</p>
+        </li>
+        <li>
+          <h3>Ordinace má přehled</h3>
+          <p>Záznam, požadavek i upozornění jsou na jednom místě, včetně historie a auditního logu.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="pro-ordinace" class="section-alt" aria-labelledby="ordinace-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Pro ordinace</span>
+        <h2 id="ordinace-title">Proč to dává smysl právě teď</h2>
+      </div>
+      <div class="grid grid-2">
+        <ul class="checks">
+          <li><strong>Méně rutiny, více péče.</strong> Cíl je vrátit lékaři 1 až 2 hodiny denně, které dnes zmizí v dokumentaci a telefonátech.</li>
+          <li><strong>Žádná instalace.</strong> Běží v prohlížeči na počítači v ordinaci i na mobilu pacienta. Bez serveru u vás a bez IT údržby.</li>
+          <li><strong>Zvládnou to i senioři.</strong> Velké písmo, minimum kroků, srozumitelná čeština bez anglicismů.</li>
+          <li><strong>Napojení na vaše systémy.</strong> Ambulantní software, laboratorní výsledky i telefonní linka – rozsah integrací se domlouvá individuálně.</li>
+          <li><strong>Předvídatelné náklady.</strong> Měsíční platba za ordinaci podle odebraných modulů, bez dlouhodobého závazku.</li>
+        </ul>
+        <div class="card">
+          <h3>Kdo se Sestřičkou pracuje</h3>
+          <p><strong>Lékař</strong> – schvaluje souhrny, diktuje zápisy, řeší upozornění. Převážně na počítači v ordinaci.</p>
+          <p><strong>Sestra a recepce</strong> – schvaluje registrace, odbavuje frontu požadavků a telefonáty.</p>
+          <p><strong>Pacient</strong> – nahrává dokumenty, zapisuje hodnoty a odpovídá na připomínky. Nejčastěji na mobilu.</p>
+          <p><strong>Správce ordinace</strong> – nastavuje moduly a vidí statistiky provozu.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="bezpecnost" aria-labelledby="bezpecnost-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Bezpečnost a odpovědnost</span>
+        <h2 id="bezpecnost-title">Zdravotní data si zaslouží jiný standard než e-mail</h2>
+        <p class="lead">Sestřička je navržená tak, aby obstála před lékařem, pacientem i kontrolou.</p>
+      </div>
+      <div class="grid grid-3">
+        <article class="card card-teal">
+          <h3>Data v EU a šifrování</h3>
+          <p>Zdravotní údaje zpracováváme podle GDPR na serverech v Evropské unii, šifrovaně při přenosu i v úložišti.</p>
+        </article>
+        <article class="card">
+          <h3>Dvoufaktorové přihlášení</h3>
+          <p>Lékař a sestra mají ověření druhým faktorem, pacient se přihlásí přes passkey nebo ověření kódem.</p>
+        </article>
+        <article class="card card-teal">
+          <h3>Auditní log</h3>
+          <p>Je dohledatelné, kdo, kdy a co zobrazil nebo změnil – včetně schválení výstupů umělé inteligence.</p>
+        </article>
+        <article class="card">
+          <h3>Souhlasy pacienta</h3>
+          <p>Pacient spravuje souhlasy přímo v aplikaci a může je kdykoli odvolat. Bez souhlasu se data nezpracovávají.</p>
+        </article>
+        <article class="card card-teal">
+          <h3>Vždy rozhoduje lékař</h3>
+          <p>Umělá inteligence je pouze podpora. Nic se neukládá do dokumentace ani neodesílá pacientovi bez schválení lékařem.</p>
+        </article>
+        <article class="card">
+          <h3>Žádné diagnózy od AI</h3>
+          <p>Sestřička nedoporučuje léčbu ani léky a nikdy automaticky nevystavuje recept. U tíseňových stavů odkazuje na 155.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="kontakt" class="section-alt">
+    <div class="wrap">
+      <div class="cta-band">
+        <h2>Chcete Sestřičku vyzkoušet v pilotu?</h2>
+        <p>Ozvěte se nám. Ukážeme vám Sestřičku na modelových datech, probereme napojení na váš systém a domluvíme pilotní provoz ve vaší ordinaci.</p>
+        <div class="cta-actions">
+          <a class="btn btn-light" href="mailto:info@sestricka.online?subject=Nez%C3%A1vazn%C3%A1%20konzultace%20-%20Sest%C5%99i%C4%8Dka">Napsat nám</a>
+          <a class="btn btn-ghost" href="https://github.com/ullp/sestricka">Projekt na GitHubu</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h3>Sestřička</h3>
+        <p>Webová aplikace pro ordinace, která pomocí umělé inteligence zjednodušuje administrativu a komunikaci s pacienty.</p>
+      </div>
+      <div>
+        <h3>Na stránce</h3>
+        <ul>
+          <li><a href="#funkce">Funkce</a></li>
+          <li><a href="#jak-to-funguje">Jak to funguje</a></li>
+          <li><a href="#pro-ordinace">Pro ordinace</a></li>
+          <li><a href="#bezpecnost">Bezpečnost</a></li>
+          <li><a href="#kontakt">Kontakt</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Kontakt</h3>
+        <ul>
+          <li><a href="mailto:info@sestricka.online">info@sestricka.online</a></li>
+          <li><a href="https://github.com/ullp/sestricka">github.com/ullp/sestricka</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Sestřička · sestricka.online</span>
+      <span>Projekt je ve fázi přípravy. Obsah tohoto webu není lékařská rada ani diagnóza.</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
