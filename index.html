@@ -103,6 +103,11 @@ input[type="text"]:focus,input[type="password"]:focus{
 }
 .note a{color:var(--blue-700)}
 .foot{margin-top:1em;font-size:.78rem;color:var(--muted);text-align:center}
+.captcha-row{display:flex;align-items:center;gap:12px;margin-bottom:.6em;flex-wrap:wrap}
+#captcha{width:240px;height:72px;max-width:100%;border:1px solid var(--line);border-radius:10px;background:#f2f9fc;cursor:pointer;flex:0 0 auto}
+.link-btn{background:none;border:0;padding:0;font:inherit;font-size:.85rem;font-weight:650;color:var(--blue-700);cursor:pointer;text-decoration:underline}
+.link-btn:hover{color:var(--blue-800)}
+.hint{display:block;font-size:.78rem;color:var(--muted);margin-top:.4em}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -126,6 +131,15 @@ input[type="text"]:focus,input[type="password"]:focus{
       <div class="field">
         <label for="pass">Heslo</label>
         <input id="pass" name="pass" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="field">
+        <label for="captcha-input">Ověřovací kód</label>
+        <div class="captcha-row">
+          <canvas id="captcha" width="240" height="72" role="img" aria-label="Obrázek s ověřovacím kódem, který je potřeba opsat"></canvas>
+          <button type="button" class="link-btn" id="captcha-refresh">Jiný kód</button>
+        </div>
+        <input id="captcha-input" name="captcha" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Opište kód z obrázku" required>
+        <span class="hint">Kód z obrázku slouží k ověření, že nejste robot. Klepnutím na obrázek nebo na „Jiný kód“ vygenerujete nový.</span>
       </div>
       <button class="btn" type="submit" id="submit">Přihlásit se</button>
     </form>
@@ -180,25 +194,90 @@ function utf8(s){return Array.from(new TextEncoder().encode(s)).map(function(b){
 (function(){
   var AUTH='b30b009304581e829ba72879d49b6d9dd26a427ba68e2bda2cb0dce0184e5f4d';
   var KEY='sestricka.auth';
+  var CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var MAX_FAILS=3, LOCK_SECONDS=30;
+  var code='', fails=0, locked=false;
   try{ if(sessionStorage.getItem(KEY)==='ok'){ location.replace('home.html'); return; } }catch(e){}
   var form=document.getElementById('login'),err=document.getElementById('err'),btn=document.getElementById('submit');
+  var cv=document.getElementById('captcha'),inp=document.getElementById('captcha-input'),refresh=document.getElementById('captcha-refresh');
   function fail(m){ err.textContent=m; err.classList.add('show'); }
+  function draw(){
+    var W=cv.width,H=cv.height,x=cv.getContext('2d'),i;
+    x.clearRect(0,0,W,H);
+    x.fillStyle='#f2f9fc'; x.fillRect(0,0,W,H);
+    for(i=0;i<6;i++){
+      x.strokeStyle='rgba(20,120,174,'+(0.10+Math.random()*0.22).toFixed(2)+')';
+      x.lineWidth=1+Math.random()*1.6;
+      x.beginPath();
+      x.moveTo(Math.random()*W,Math.random()*H);
+      x.bezierCurveTo(Math.random()*W,Math.random()*H,Math.random()*W,Math.random()*H,Math.random()*W,Math.random()*H);
+      x.stroke();
+    }
+    for(i=0;i<70;i++){
+      x.fillStyle='rgba(10,61,98,'+(0.06+Math.random()*0.18).toFixed(2)+')';
+      x.fillRect(Math.random()*W,Math.random()*H,2,2);
+    }
+    var colors=['#0a3d62','#0e5a8a','#0f9b8e','#122b3c'];
+    for(i=0;i<code.length;i++){
+      x.save();
+      x.translate(30+i*44,46+(Math.random()-0.5)*12);
+      x.rotate((Math.random()-0.5)*0.55);
+      x.font='700 '+(30+Math.random()*9).toFixed(0)+'px "Segoe UI",system-ui,-apple-system,Arial,sans-serif';
+      x.textAlign='center'; x.textBaseline='middle';
+      x.fillStyle=colors[Math.floor(Math.random()*colors.length)];
+      x.fillText(code.charAt(i),0,0);
+      x.restore();
+    }
+    x.strokeStyle='rgba(15,155,142,.55)'; x.lineWidth=2;
+    x.beginPath(); x.moveTo(0,36);
+    for(i=0;i<=W;i+=20){ x.lineTo(i,36+Math.sin(i/28)*7); }
+    x.stroke();
+  }
+  function newCode(){
+    code='';
+    for(var i=0;i<5;i++){ code+=CHARS.charAt(Math.floor(Math.random()*CHARS.length)); }
+    inp.value='';
+    draw();
+  }
+  function lock(){
+    locked=true; btn.disabled=true;
+    var left=LOCK_SECONDS;
+    btn.textContent='Zkuste to za '+left+' s';
+    var t=setInterval(function(){
+      left--;
+      btn.textContent='Zkuste to za '+left+' s';
+      if(left<=0){ clearInterval(t); locked=false; fails=0; btn.disabled=false; btn.textContent='Přihlásit se'; newCode(); }
+    },1000);
+  }
+  refresh.addEventListener('click',function(e){ e.preventDefault(); newCode(); });
+  cv.addEventListener('click',newCode);
   form.addEventListener('submit',function(e){
     e.preventDefault();
     err.classList.remove('show');
+    if(locked){ return; }
     var u=(document.getElementById('user').value||'').trim().toLowerCase();
     var p=document.getElementById('pass').value||'';
+    var c=(inp.value||'').trim().toUpperCase();
     if(!u||!p){ fail('Vyplňte prosím uživatelské jméno i heslo.'); return; }
+    if(!c){ fail('Opište prosím ověřovací kód z obrázku.'); return; }
+    if(c!==code){
+      fails++; newCode();
+      fail('Ověřovací kód nesouhlasí. Zkuste to prosím znovu.');
+      if(fails>=MAX_FAILS){ lock(); }
+      return;
+    }
     btn.disabled=true;
     if(sha256(utf8(u+':'+p))===AUTH){
       try{ sessionStorage.setItem(KEY,'ok'); }catch(x){}
       location.replace('home.html');
     }else{
-      btn.disabled=false;
+      fails++; newCode(); btn.disabled=false;
       document.getElementById('pass').value='';
       fail('Přihlášení se nezdařilo. Zkontrolujte prosím zadané údaje.');
+      if(fails>=MAX_FAILS){ lock(); }
     }
   });
+  newCode();
 })();
 </script>
 </body>
