@@ -34,7 +34,9 @@ O léčbě vždy rozhoduje lékař. Výstupy umělé inteligence slouží pouze 
 
 | Soubor | Obsah |
 | --- | --- |
+| `index.html` | webová prezentace projektu na [sestricka.online](https://sestricka.online) |
 | `README.md` | tento přehled projektu |
+| `CNAME` | vlastní doména pro GitHub Pages |
 | `.gitignore` | soubory, které se necommitují (IDE, build výstupy, lokální konfigurace) |
 
 ## Kontakt
